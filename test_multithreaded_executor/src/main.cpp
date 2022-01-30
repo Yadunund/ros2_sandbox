@@ -9,6 +9,8 @@
 
 #include <std_msgs/msg/string.hpp>
 
+#include <thread>
+
 //##############################################################################
 class Listener : public rclcpp::Node
 {
@@ -32,10 +34,14 @@ public:
       1,
       [this](const String::SharedPtr msg)
       {
+
+        const auto hashed = std::hash<std::thread::id>()(
+          std::this_thread::get_id());
+        const std::string thread_name = std::to_string(hashed);
         RCLCPP_INFO(
           this->get_logger(),
-          "Listener[%ld]: Received %s",
-          _id, msg->data.c_str());
+          "Listener[%ld] on thread[%s]: Received %s",
+          _id, thread_name.c_str(), msg->data.c_str());
       },
       sub_opt
     );
